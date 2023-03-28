@@ -30,6 +30,7 @@ CREATE TABLE workspace (
 CREATE TABLE project (
   id          INT           NOT NULL    PRIMARY KEY   AUTO_INCREMENT,
   pname       VARCHAR(128)  NOT NULL,
+  pkey        VARCHAR(16),
   createTime  DATETIME      NOT NULL,
   ownerId     CHAR(28)      NOT NULL,
   workspaceId INT           NOT NULL,
@@ -41,8 +42,8 @@ CREATE TABLE works_on (
   userId      CHAR(28)    NOT NULL,
   projectId   INT         NOT NULL,
   PRIMARY KEY (userId, projectId),
-  FOREIGN KEY (userId) REFERENCES user (id) ON UPDATE CASCADE,
-  FOREIGN KEY (projectId) REFERENCES project (id) ON UPDATE CASCADE
+  FOREIGN KEY (userId) REFERENCES user (id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (projectId) REFERENCES project (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE cycle (

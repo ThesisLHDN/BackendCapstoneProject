@@ -4,6 +4,10 @@ import {
   getWorkspaces,
   getWorkspaceById,
   getLastestWorkspace,
+  editWorkspace,
+  getAdmin,
+  getWorkspaceMember,
+  removeWorkspaceMember,
 } from "../controllers/WorkspaceControllers.js";
 
 const router = express.Router();
@@ -11,6 +15,10 @@ const router = express.Router();
 router.get("/workspaces", getWorkspaces);
 router.get("/workspace/:id", getWorkspaceById);
 router.get("/lastworkspace/:id", getLastestWorkspace);
+router.get("/admin/:id", getAdmin);
+router.get("/wsmember/:id", getWorkspaceMember);
 router.post("/workspace", createWorkspace);
+router.put("/workspace/:id", editWorkspace);
+router.delete("/wsmember/:id", removeWorkspaceMember);
 
 export default router;
