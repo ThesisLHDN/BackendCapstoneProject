@@ -49,12 +49,12 @@ CREATE TABLE works_on (
 CREATE TABLE cycle (
   id        INT           NOT NULL    PRIMARY KEY   AUTO_INCREMENT,
   cyclename VARCHAR(128)  NOT NULL,
-  startDate DATETIME      NOT NULL,
-  endDate   DATETIME,
-  cstatus   BIT           NOT NULL,
+  startDate DATE          NOT NULL,
+  endDate   DATE          NOT NULL,
+  cstatus   INT           NOT NULL,
   goal      MEDIUMTEXT,
-  ownerId   CHAR(28)      NOT NULL,
-  projectId INT           NOT NULL,
+  ownerId   CHAR(28),
+  projectId INT,
   FOREIGN KEY (ownerId) REFERENCES user (id) ON UPDATE CASCADE,
   FOREIGN KEY (projectId) REFERENCES project (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -62,14 +62,18 @@ CREATE TABLE cycle (
 CREATE TABLE epic (
   id        INT           NOT NULL    PRIMARY KEY   AUTO_INCREMENT,
   epicname  VARCHAR(128)  NOT NULL,
-  startDate DATETIME      NOT NULL,
-  endDate   DATETIME
+  startDate DATE          NOT NULL,
+  endDate   DATE,
+  projectId INT
 );
 
-CREATE TABLE status (
-  id    INT           NOT NULL    PRIMARY KEY   AUTO_INCREMENT,
-  sname VARCHAR(128)  NOT NULL
-);
+INSERT INTO cycle (id, cyclename, startDate, endDate, cstatus) VALUES ('0', 'Backlog', '0001-01-01', '9999-12-31', 1);
+INSERT INTO epic (id, epicname, startDate) VALUES ('0', 'Default', '0001-01-01');
+
+-- CREATE TABLE status (
+--   id    INT           NOT NULL    PRIMARY KEY   AUTO_INCREMENT,
+--   sname VARCHAR(128)  NOT NULL
+-- );
 
 CREATE TABLE issue (
   id            INT           NOT NULL    PRIMARY KEY   AUTO_INCREMENT,
@@ -77,8 +81,9 @@ CREATE TABLE issue (
   createTime    DATETIME      NOT NULL,
   reporterId    CHAR(28)      NOT NULL,
   projectId     INT           NOT NULL,
-  statusId      INT           NOT NULL,
+  issuestatus   VARCHAR(16)   NOT NULL,
   cycleId       INT           NOT NULL,
+  issueType     VARCHAR(16)   NOT NULL,
   descript      LONGTEXT,
   priority      INT,
   dueDate       DATETIME,
@@ -88,7 +93,6 @@ CREATE TABLE issue (
   parentId      INT,
   FOREIGN KEY (reporterId) REFERENCES user (id) ON UPDATE CASCADE,
   FOREIGN KEY (projectId) REFERENCES project (id) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (statusId) REFERENCES status (id) ON UPDATE CASCADE,
   FOREIGN KEY (cycleId) REFERENCES cycle (id) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (assigneeId) REFERENCES user (id) ON UPDATE CASCADE,
   FOREIGN KEY (epicId) REFERENCES epic (id) ON UPDATE CASCADE,
