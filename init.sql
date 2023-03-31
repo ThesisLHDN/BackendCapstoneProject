@@ -67,7 +67,7 @@ CREATE TABLE epic (
   projectId INT
 );
 
-INSERT INTO cycle (id, cyclename, startDate, endDate, cstatus) VALUES ('0', 'Backlog', '0001-01-01', '9999-12-31', 1);
+INSERT INTO cycle (id, cyclename, startDate, endDate, cstatus) VALUES ('0', 'Backlog', '0001-01-01', '9999-12-31', -1);
 INSERT INTO epic (id, epicname, startDate) VALUES ('0', 'Default', '0001-01-01');
 
 -- CREATE TABLE status (
