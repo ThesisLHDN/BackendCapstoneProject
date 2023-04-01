@@ -85,7 +85,7 @@ CREATE TABLE issue (
   cycleId       INT           NOT NULL,
   issueType     VARCHAR(16)   NOT NULL,
   descript      LONGTEXT,
-  priority      INT,
+  priority      VARCHAR(16),
   dueDate       DATETIME,
   estimatePoint INT,
   assigneeId    CHAR(28),
@@ -100,9 +100,10 @@ CREATE TABLE issue (
 );
 
 CREATE TABLE issue_tag (
-  id      INT           NOT NULL,
+  id      INT           NOT NULL PRIMARY KEY   AUTO_INCREMENT,
   tagname VARCHAR(128)  NOT NULL,
-  PRIMARY KEY (id, tagname)
+  issueId INT           NOT NULL,
+  FOREIGN KEY (issueId) REFERENCES issue (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE comment (
