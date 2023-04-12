@@ -73,3 +73,11 @@ export const removeWorkspaceMember = (req, res) => {
     return res.json("Workspace member has been deleted successfully.");
   });
 };
+
+export const deleteWorkspace = (req, res) => {
+  const q = "DELETE FROM workspace WHERE id=?";
+  db.query(q, [req.params.id], (err, data) => {
+    if (err) return res.json(err);
+    return res.json("Workspace has been deleted successfully.");
+  });
+};

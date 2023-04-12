@@ -8,6 +8,7 @@ import {
   getAdmin,
   getWorkspaceMember,
   removeWorkspaceMember,
+  deleteWorkspace,
 } from "../controllers/WorkspaceControllers.js";
 
 const router = express.Router();
@@ -20,5 +21,6 @@ router.get("/wsmember/:id", getWorkspaceMember);
 router.post("/workspace", createWorkspace);
 router.put("/workspace/:id", editWorkspace);
 router.delete("/wsmember/:id", removeWorkspaceMember);
+router.delete("/workspace/:id", deleteWorkspace);
 
 export default router;

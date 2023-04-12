@@ -64,3 +64,11 @@ export const updateIssue = (req, res) => {
     return res.json(req.body);
   });
 };
+
+export const deleteIssue = (req, res) => {
+  const q = "DELETE FROM issue WHERE id=?";
+  db.query(q, [req.params.id], (err, data) => {
+    if (err) return res.json(err);
+    return res.json("Issue has been deleted successfully.");
+  });
+};
