@@ -2,7 +2,7 @@ import { db } from "../db.js";
 
 export const getWorkspaces = (req, res) => {
   const q =
-    "SELECT DISTINCT workspace.id, workspace.wsname FROM works_on JOIN project ON works_on.projectId = project.id RIGHT JOIN workspace ON project.workspaceId = workspace.Id WHERE workspace.adminId=? OR works_on.userId=?";
+    "SELECT DISTINCT workspace.wid, workspace.wsname FROM works_on JOIN project ON works_on.projectId = project.pid RIGHT JOIN workspace ON project.workspaceId = workspace.wid WHERE workspace.adminId=? OR works_on.userId=?";
   db.query(q, [req.query.user, req.query.user], (err, data) => {
     if (err) return res.json(err);
     return res.json(data.reverse());
@@ -10,7 +10,7 @@ export const getWorkspaces = (req, res) => {
 };
 
 export const getWorkspaceById = (req, res) => {
-  const q = "SELECT * FROM workspace WHERE id=?";
+  const q = "SELECT * FROM workspace WHERE wid=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(data[0]);
@@ -18,7 +18,7 @@ export const getWorkspaceById = (req, res) => {
 };
 
 export const getLastestWorkspace = (req, res) => {
-  const q = "SELECT * FROM workspace WHERE adminId=? ORDER BY id DESC LIMIT 1";
+  const q = "SELECT * FROM workspace WHERE adminId=? ORDER BY wid DESC LIMIT 1";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(data[0]);
@@ -27,7 +27,7 @@ export const getLastestWorkspace = (req, res) => {
 
 export const getAdmin = (req, res) => {
   const q =
-    "SELECT * FROM workspace JOIN user ON user.id = workspace.adminId WHERE workspace.id=?";
+    "SELECT * FROM workspace JOIN user ON user.id = workspace.adminId WHERE workspace.wid=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(data[0]);
@@ -36,7 +36,7 @@ export const getAdmin = (req, res) => {
 
 export const getWorkspaceMember = (req, res) => {
   const q =
-    "SELECT user.id, user.username, user.email FROM user JOIN works_on ON user.id = works_on.userId JOIN project ON works_on.projectId = project.id WHERE project.workspaceId=?";
+    "SELECT user.id, user.username, user.email FROM user JOIN works_on ON user.id = works_on.userId JOIN project ON works_on.projectId = project.pid WHERE project.workspaceId=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(data);
@@ -54,7 +54,7 @@ export const createWorkspace = (req, res) => {
 };
 
 export const editWorkspace = (req, res) => {
-  const q = "UPDATE workspace SET `wsname`=?, `descript`=? WHERE `id`=?";
+  const q = "UPDATE workspace SET `wsname`=?, `descript`=? WHERE `wid`=?";
   const wsId = [req.params.id];
   const values = [req.body.wsname, req.body.descript];
   db.query(q, [...values, wsId], (err, data) => {
@@ -65,7 +65,7 @@ export const editWorkspace = (req, res) => {
 
 export const removeWorkspaceMember = (req, res) => {
   const q =
-    "DELETE FROM works_on WHERE userId=? AND projectId IN (SELECT id FROM project WHERE workspaceId=?)";
+    "DELETE FROM works_on WHERE userId=? AND projectId IN (SELECT pid FROM project WHERE workspaceId=?)";
   const values = [req.params.id];
   const wsId = [req.query.wsId];
   db.query(q, [...values, wsId], (err, data) => {
@@ -75,7 +75,7 @@ export const removeWorkspaceMember = (req, res) => {
 };
 
 export const deleteWorkspace = (req, res) => {
-  const q = "DELETE FROM workspace WHERE id=?";
+  const q = "DELETE FROM workspace WHERE wid=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json("Workspace has been deleted successfully.");
