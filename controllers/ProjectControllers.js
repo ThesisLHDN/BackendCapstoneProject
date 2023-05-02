@@ -3,8 +3,8 @@ import { db } from "../db.js";
 export const getProjects = (req, res) => {
   const q =
     req.query.user == ""
-      ? "SELECT p.pid, p.pname, u.username FROM project p JOIN user u ON p.ownerId = u.id WHERE workspaceId=?"
-      : "SELECT project.pid, project.pname, user.username, user.email FROM project JOIN user ON project.ownerId = user.id JOIN works_on ON project.pid = works_on.projectId WHERE project.workspaceId=? AND works_on.userId=?";
+      ? "SELECT p.id, p.pname, u.username FROM project p JOIN user u ON p.ownerId = u.id WHERE workspaceId=?"
+      : "SELECT project.id, project.pname, user.username, user.email FROM project JOIN user ON project.ownerId = user.id JOIN works_on ON project.id = works_on.projectId WHERE project.workspaceId=? AND works_on.userId=?";
   const values = [req.params.id];
   db.query(q, [...values, req.query.user], (err, data) => {
     if (err) return res.json(err);
@@ -14,7 +14,7 @@ export const getProjects = (req, res) => {
 
 export const getProjectById = (req, res) => {
   const q =
-    "SELECT p.pid, p.pname, p.pkey, p.ownerId, p.workspaceId, w.wsname, u.username, u.id, u.email FROM project p JOIN workspace w ON p.workspaceId = w.wid JOIN user u ON w.adminId = u.id WHERE p.pid=?";
+    "SELECT p.id, p.pname, p.pkey, p.ownerId, p.workspaceId, w.wsname, w.adminId, u.username, u.email FROM project p JOIN workspace w ON p.workspaceId = w.id JOIN user u ON w.adminId = u.id WHERE p.id=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(data[0]);
@@ -62,7 +62,7 @@ export const addProjectMember = (req, res) => {
 };
 
 export const editProject = (req, res) => {
-  const q = "UPDATE project SET `pname`=?, `pkey`=? WHERE `pid`=?";
+  const q = "UPDATE project SET `pname`=?, `pkey`=? WHERE `id`=?";
   const pId = [req.params.id];
   const values = [req.body.pname, req.body.pkey];
   db.query(q, [...values, pId], (err, data) => {
@@ -72,7 +72,7 @@ export const editProject = (req, res) => {
 };
 
 export const deleteProject = (req, res) => {
-  const q = "DELETE FROM project WHERE pid=?";
+  const q = "DELETE FROM project WHERE id=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json("Project has been deleted successfully.");

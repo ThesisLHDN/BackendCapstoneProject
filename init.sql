@@ -6,7 +6,8 @@ USE capstone;
 CREATE TABLE user (
   id        CHAR(28)      NOT NULL    PRIMARY KEY,
   email     VARCHAR(128)  NOT NULL,
-  username  VARCHAR(128)
+  username  VARCHAR(128),
+  photoURL  MEDIUMTEXT
 );
 
 CREATE TABLE notification (
@@ -18,7 +19,7 @@ CREATE TABLE notification (
 );
 
 CREATE TABLE workspace (
-  wid          INT           NOT NULL    PRIMARY KEY   AUTO_INCREMENT,
+  id          INT           NOT NULL    PRIMARY KEY   AUTO_INCREMENT,
   wsname      VARCHAR(128)  NOT NULL,
   descript    MEDIUMTEXT,
   createTime  DATETIME      NOT NULL,
@@ -27,14 +28,14 @@ CREATE TABLE workspace (
 );
 
 CREATE TABLE project (
-  pid          INT           NOT NULL    PRIMARY KEY   AUTO_INCREMENT,
+  id          INT           NOT NULL    PRIMARY KEY   AUTO_INCREMENT,
   pname       VARCHAR(128)  NOT NULL,
   pkey        VARCHAR(16),
   createTime  DATETIME      NOT NULL,
   ownerId     CHAR(28)      NOT NULL,
   workspaceId INT           NOT NULL,
   FOREIGN KEY (ownerId) REFERENCES user (id) ON UPDATE CASCADE,
-  FOREIGN KEY (workspaceId) REFERENCES workspace (wid) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (workspaceId) REFERENCES workspace (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE works_on (
@@ -42,7 +43,7 @@ CREATE TABLE works_on (
   projectId   INT         NOT NULL,
   PRIMARY KEY (userId, projectId),
   FOREIGN KEY (userId) REFERENCES user (id) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (projectId) REFERENCES project (pid) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (projectId) REFERENCES project (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE cycle (
@@ -55,7 +56,7 @@ CREATE TABLE cycle (
   ownerId   CHAR(28),
   projectId INT,
   FOREIGN KEY (ownerId) REFERENCES user (id) ON UPDATE CASCADE,
-  FOREIGN KEY (projectId) REFERENCES project (pid) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (projectId) REFERENCES project (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE epic (
@@ -86,7 +87,7 @@ CREATE TABLE issue (
   epicId        INT,
   parentId      INT,
   FOREIGN KEY (reporterId) REFERENCES user (id) ON UPDATE CASCADE,
-  FOREIGN KEY (projectId) REFERENCES project (pid) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (projectId) REFERENCES project (id) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (cycleId) REFERENCES cycle (id) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (assigneeId) REFERENCES user (id) ON UPDATE CASCADE,
   FOREIGN KEY (epicId) REFERENCES epic (id) ON UPDATE CASCADE,
