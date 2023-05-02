@@ -10,7 +10,8 @@ export const getWorkspaces = (req, res) => {
 };
 
 export const getWorkspaceById = (req, res) => {
-  const q = "SELECT * FROM workspace WHERE id=?";
+  const q =
+    "SELECT w.id, w.wsname, w.descript, w.adminId, u.username, u.email, u.photoURL FROM workspace w JOIN user u ON w.adminId = u.id WHERE w.id=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(data[0]);
@@ -36,7 +37,7 @@ export const getAdmin = (req, res) => {
 
 export const getWorkspaceMember = (req, res) => {
   const q =
-    "SELECT user.id, user.username, user.email FROM user JOIN works_on ON user.id = works_on.userId JOIN project ON works_on.projectId = project.id WHERE project.workspaceId=?";
+    "SELECT user.id, user.username, user.email, user.photoURL FROM user JOIN works_on ON user.id = works_on.userId JOIN project ON works_on.projectId = project.id WHERE project.workspaceId=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(data);
@@ -49,7 +50,13 @@ export const createWorkspace = (req, res) => {
   const values = [req.body.wsname, req.body.createTime, req.body.adminId];
   db.query(q, [values], (err, data) => {
     if (err) return res.json(err);
-    return res.json("Workspace has been created successfully.");
+
+    const q = "SELECT id FROM workspace WHERE wsname=? AND createTime=?";
+    const values = [req.body.wsname];
+    db.query(q, [...values, req.body.createTime], (err, data) => {
+      if (err) return res.json(err);
+      return res.json(data[0]);
+    });
   });
 };
 
