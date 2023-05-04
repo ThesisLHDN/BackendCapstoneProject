@@ -72,12 +72,14 @@ INSERT INTO epic (id, epicname, startDate) VALUES ('0', 'Default', '0001-01-01')
 
 CREATE TABLE issue (
   id            INT           NOT NULL    PRIMARY KEY   AUTO_INCREMENT,
+  issueindex    INT           NOT NULL,
   issuename     VARCHAR(128)  NOT NULL,
   createTime    DATETIME      NOT NULL,
   reporterId    CHAR(28)      NOT NULL,
   projectId     INT           NOT NULL,
   issuestatus   VARCHAR(16)   NOT NULL,
   cycleId       INT           NOT NULL,
+  issueorder    INT           NOT NULL,
   issueType     VARCHAR(16)   NOT NULL,
   descript      LONGTEXT,
   priority      VARCHAR(16),

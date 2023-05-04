@@ -43,6 +43,29 @@ export const completeSprint = (req, res) => {
   const values = [1];
   db.query(q, [...values, "Done", ...cid], (err, data) => {
     if (err) return res.json(err);
+
+    const p = "SELECT * FROM issue WHERE cycleId=? AND projectId=?";
+    const vals = [1];
+    db.query(p, [...vals, req.body.pId], (err, data) => {
+      if (err) return res.json(err);
+      // Sort lai cai ds
+      const iss = data.sort((a, b) => {
+        return a.issueorder < b.issueorder
+          ? -1
+          : a.issueorder > b.issueorder
+          ? 1
+          : 0;
+      });
+      // Update lai tung cai issue
+      for (let i = 0; i < data.length; i++) {
+        const p = "UPDATE issue SET `issueorder`=? WHERE id=?";
+        const vals = [i];
+        db.query(p, [...vals, iss[i].id], (err, data) => {
+          if (err) return res.json(err);
+        });
+      }
+    });
+
     const q = "UPDATE cycle SET `cstatus`=? WHERE id=?";
     const values = [0];
     db.query(q, [...values, cid], (err, data) => {

@@ -25,32 +25,148 @@ export const getIssueById = (req, res) => {
 };
 
 export const createIssue = (req, res) => {
-  const q =
-    "INSERT INTO issue (`issuename`, `createTime`, `reporterId`, `projectId`, `issuestatus`, `cycleId`, `issueType`, `epicId`) VALUES (?)";
-  const values = [
-    req.body.issuename,
-    req.body.createTime,
-    req.body.reporterId,
-    req.body.projectId,
-    req.body.issuestatus,
-    req.body.cycleId,
-    req.body.issueType,
-    req.body.epicId,
-  ];
+  const q = "SELECT COUNT(id) as NumOfIssue FROM issue WHERE projectId=?";
+  const values = [req.body.projectId];
   db.query(q, [values], (err, data) => {
     if (err) return res.json(err);
-    return res.json("Issue has been created successfully.");
+    const q =
+      "INSERT INTO issue (`issueindex`, `issuename`, `createTime`, `reporterId`, `projectId`, `issuestatus`, `cycleId`, `issueorder`, `issueType`, `epicId`) VALUES (?)";
+    const values = [
+      data[0].NumOfIssue + 1,
+      req.body.issuename,
+      req.body.createTime,
+      req.body.reporterId,
+      req.body.projectId,
+      req.body.issuestatus,
+      req.body.cycleId,
+      data[0].NumOfIssue,
+      req.body.issueType,
+      req.body.epicId,
+    ];
+    db.query(q, [values], (err, data) => {
+      if (err) return res.json(err);
+      return res.json("Issue has been created successfully.");
+    });
   });
 };
 
 export const updateIssue = (req, res) => {
+  if ("source" in req.body) {
+    // Case: move qua lai giua 2 cai sprint
+    if (req.body.source.droppableId != req.body.destination.droppableId) {
+      // Lay ra ds issue trong cai sprint
+      const p = "SELECT * FROM issue WHERE cycleId=?";
+      const vals = [req.body.cId];
+      db.query(p, [vals], (err, data) => {
+        if (err) return res.json(err);
+        // Sort lai cai ds
+        const iss = data.sort((a, b) => {
+          return a.issueorder < b.issueorder
+            ? -1
+            : a.issueorder > b.issueorder
+            ? 1
+            : 0;
+        });
+        // Update tung cai issue mot cho issueorder tang len 1
+        for (let i = req.body.destination.index; i < data.length; i++) {
+          const p = "UPDATE issue SET `issueorder`=? WHERE id=?";
+          const vals = [iss[i].issueorder + 1];
+          db.query(p, [...vals, iss[i].id], (err, data) => {
+            if (err) return res.json(err);
+          });
+        }
+      });
+
+      const m = "SELECT * FROM issue WHERE cycleId=?";
+      const val = [req.body.source.droppableId];
+      db.query(m, [val], (err, data) => {
+        if (err) return res.json(err);
+        // Sort lai cai ds
+        const iss = data.sort((a, b) => {
+          return a.issueorder < b.issueorder
+            ? -1
+            : a.issueorder > b.issueorder
+            ? 1
+            : 0;
+        });
+        // Update tung cai issue mot cho issueorder giam xuong 1
+        for (let i = req.body.source.index + 1; i < data.length; i++) {
+          const p = "UPDATE issue SET `issueorder`=? WHERE id=?";
+          const vals = [iss[i].issueorder - 1];
+          db.query(p, [...vals, iss[i].id], (err, data) => {
+            if (err) return res.json(err);
+          });
+        }
+      });
+    } else {
+      if (req.body.source.index > req.body.destination.index) {
+        // Lay ra ds issue trong cai sprint
+        const p = "SELECT * FROM issue WHERE cycleId=?";
+        const vals = [req.body.cId];
+        db.query(p, [vals], (err, data) => {
+          if (err) return res.json(err);
+          // Sort lai cai ds
+          const iss = data.sort((a, b) => {
+            return a.issueorder < b.issueorder
+              ? -1
+              : a.issueorder > b.issueorder
+              ? 1
+              : 0;
+          });
+          // Update tung cai issue mot cho issueorder tang len 1
+          for (
+            let i = req.body.destination.index;
+            i <= req.body.source.index - 1;
+            i++
+          ) {
+            if (iss[i].id == req.params.id) continue;
+            const p = "UPDATE issue SET `issueorder`=? WHERE id=?";
+            const vals = [iss[i].issueorder + 1];
+            db.query(p, [...vals, iss[i].id], (err, data) => {
+              if (err) return res.json(err);
+            });
+          }
+        });
+      } else if (req.body.source.index < req.body.destination.index) {
+        // Lay ra ds issue trong cai sprint
+        const p = "SELECT * FROM issue WHERE cycleId=?";
+        const vals = [req.body.cId];
+        db.query(p, [vals], (err, data) => {
+          if (err) return res.json(err);
+          // Sort lai cai ds
+          const iss = data.sort((a, b) => {
+            return a.issueorder < b.issueorder
+              ? -1
+              : a.issueorder > b.issueorder
+              ? 1
+              : 0;
+          });
+          // Update tung cai issue mot cho issueorder tang len 1
+          for (
+            let i = req.body.source.index + 1;
+            i <= req.body.destination.index;
+            i++
+          ) {
+            if (iss[i].id == req.params.id) continue;
+            console.log(iss[i]);
+            const p = "UPDATE issue SET `issueorder`=? WHERE id=?";
+            const vals = [iss[i].issueorder - 1];
+            db.query(p, [...vals, iss[i].id], (err, data) => {
+              if (err) return res.json(err);
+            });
+          }
+        });
+      }
+    }
+  }
+
   const q =
     "cId" in req.body
-      ? "UPDATE issue SET `cycleId`=?, `issuestatus`=? WHERE id=?"
+      ? "UPDATE issue SET `cycleId`=?, `issuestatus`=?, `issueorder`=? WHERE id=?"
       : "UPDATE issue SET `issuestatus`=?, `descript`=?, `dueDate`=?, `priority`=?, `assigneeId`=?, `estimatePoint`=? WHERE id=?";
   const values =
     "cId" in req.body
-      ? [req.body.cId, req.body.status]
+      ? [req.body.cId, req.body.status, req.body.destination.index]
       : [
           req.body.issuestatus,
           req.body.descript,
