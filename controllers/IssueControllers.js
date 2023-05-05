@@ -29,23 +29,31 @@ export const createIssue = (req, res) => {
   const values = [req.body.projectId];
   db.query(q, [values], (err, data) => {
     if (err) return res.json(err);
+
+    const numOfIssues = data[0].NumOfIssue;
     const q =
-      "INSERT INTO issue (`issueindex`, `issuename`, `createTime`, `reporterId`, `projectId`, `issuestatus`, `cycleId`, `issueorder`, `issueType`, `epicId`) VALUES (?)";
-    const values = [
-      data[0].NumOfIssue + 1,
-      req.body.issuename,
-      req.body.createTime,
-      req.body.reporterId,
-      req.body.projectId,
-      req.body.issuestatus,
-      req.body.cycleId,
-      data[0].NumOfIssue,
-      req.body.issueType,
-      req.body.epicId,
-    ];
-    db.query(q, [values], (err, data) => {
+      "SELECT COUNT(id) as NumOfSprIssue FROM issue WHERE projectId=? AND cycleId=?";
+    db.query(q, [...values, req.body.cycleId], (err, data) => {
       if (err) return res.json(err);
-      return res.json("Issue has been created successfully.");
+
+      const q =
+        "INSERT INTO issue (`issueindex`, `issuename`, `createTime`, `reporterId`, `projectId`, `issuestatus`, `cycleId`, `issueorder`, `issueType`, `epicId`) VALUES (?)";
+      const values = [
+        numOfIssues + 1,
+        req.body.issuename,
+        req.body.createTime,
+        req.body.reporterId,
+        req.body.projectId,
+        req.body.issuestatus,
+        req.body.cycleId,
+        data[0].NumOfSprIssue,
+        req.body.issueType,
+        req.body.epicId,
+      ];
+      db.query(q, [values], (err, data) => {
+        if (err) return res.json(err);
+        return res.json("Issue has been created successfully.");
+      });
     });
   });
 };
@@ -55,9 +63,9 @@ export const updateIssue = (req, res) => {
     // Case: move qua lai giua 2 cai sprint
     if (req.body.source.droppableId != req.body.destination.droppableId) {
       // Lay ra ds issue trong cai sprint
-      const p = "SELECT * FROM issue WHERE cycleId=?";
+      const p = "SELECT * FROM issue WHERE cycleId=? AND projectId=?";
       const vals = [req.body.cId];
-      db.query(p, [vals], (err, data) => {
+      db.query(p, [...vals, req.body.pId], (err, data) => {
         if (err) return res.json(err);
         // Sort lai cai ds
         const iss = data.sort((a, b) => {
@@ -77,9 +85,9 @@ export const updateIssue = (req, res) => {
         }
       });
 
-      const m = "SELECT * FROM issue WHERE cycleId=?";
+      const m = "SELECT * FROM issue WHERE cycleId=? AND projectId=?";
       const val = [req.body.source.droppableId];
-      db.query(m, [val], (err, data) => {
+      db.query(m, [...val, req.body.pId], (err, data) => {
         if (err) return res.json(err);
         // Sort lai cai ds
         const iss = data.sort((a, b) => {
@@ -101,9 +109,9 @@ export const updateIssue = (req, res) => {
     } else {
       if (req.body.source.index > req.body.destination.index) {
         // Lay ra ds issue trong cai sprint
-        const p = "SELECT * FROM issue WHERE cycleId=?";
+        const p = "SELECT * FROM issue WHERE cycleId=? AND projectId=?";
         const vals = [req.body.cId];
-        db.query(p, [vals], (err, data) => {
+        db.query(p, [...vals, req.body.pId], (err, data) => {
           if (err) return res.json(err);
           // Sort lai cai ds
           const iss = data.sort((a, b) => {
@@ -129,9 +137,9 @@ export const updateIssue = (req, res) => {
         });
       } else if (req.body.source.index < req.body.destination.index) {
         // Lay ra ds issue trong cai sprint
-        const p = "SELECT * FROM issue WHERE cycleId=?";
+        const p = "SELECT * FROM issue WHERE cycleId=? AND projectId=?";
         const vals = [req.body.cId];
-        db.query(p, [vals], (err, data) => {
+        db.query(p, [...vals, req.body.pId], (err, data) => {
           if (err) return res.json(err);
           // Sort lai cai ds
           const iss = data.sort((a, b) => {
@@ -161,20 +169,24 @@ export const updateIssue = (req, res) => {
   }
 
   const q =
-    "cId" in req.body
+    "source" in req.body
       ? "UPDATE issue SET `cycleId`=?, `issuestatus`=?, `issueorder`=? WHERE id=?"
-      : "UPDATE issue SET `issuestatus`=?, `descript`=?, `dueDate`=?, `priority`=?, `assigneeId`=?, `estimatePoint`=? WHERE id=?";
+      : "descript" in req.body
+      ? "UPDATE issue SET `issuestatus`=?, `descript`=?, `dueDate`=?, `priority`=?, `assigneeId`=?, `estimatePoint`=? WHERE id=?"
+      : "UPDATE issue SET `cycleId`=?, `issuestatus`=? WHERE id=?";
   const values =
-    "cId" in req.body
+    "source" in req.body
       ? [req.body.cId, req.body.status, req.body.destination.index]
-      : [
+      : "descript" in req.body
+      ? [
           req.body.issuestatus,
           req.body.descript,
           req.body.dueDate,
           req.body.priority,
           req.body.assigneeId,
           req.body.estimatePoint,
-        ];
+        ]
+      : [req.body.cId, req.body.status];
   db.query(q, [...values, req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(req.body);
