@@ -173,7 +173,7 @@ export const updateIssue = (req, res) => {
       ? "UPDATE issue SET `cycleId`=?, `issuestatus`=?, `issueorder`=? WHERE id=?"
       : "descript" in req.body
       ? "UPDATE issue SET `issuestatus`=?, `descript`=?, `dueDate`=?, `priority`=?, `assigneeId`=?, `estimatePoint`=? WHERE id=?"
-      : "UPDATE issue SET `cycleId`=?, `issuestatus`=? WHERE id=?";
+      : "UPDATE issue SET `cycleId`=?, `issuestatus`=?, `createTime`=?, `dueDate`=? WHERE id=?";
   const values =
     "source" in req.body
       ? [req.body.cId, req.body.status, req.body.destination.index]
@@ -186,7 +186,7 @@ export const updateIssue = (req, res) => {
           req.body.assigneeId,
           req.body.estimatePoint,
         ]
-      : [req.body.cId, req.body.status];
+      : [req.body.cId, req.body.status, req.body.startDate, req.body.dueDate];
   db.query(q, [...values, req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(req.body);
