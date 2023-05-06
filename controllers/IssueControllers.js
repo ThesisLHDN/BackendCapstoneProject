@@ -204,3 +204,82 @@ export const deleteIssue = (req, res) => {
     return res.json("Issue has been deleted successfully.");
   });
 };
+
+export const filterIssues = (req, res) => {
+  const temp = req.query.sprint
+    ? "SELECT * FROM issue WHERE projectId=? AND cycleId=? "
+    : "SELECT * FROM issue WHERE projectId=? ";
+  var k = "";
+  var v = [];
+  for (const key in req.body) {
+    if (req.body[key] == "") continue;
+    k +=
+      key == "status"
+        ? "AND issuestatus=? "
+        : key == "type"
+        ? "AND issueType=? "
+        : "AND priority=? ";
+    v.push(req.body[key]);
+  }
+  const q = temp + k;
+  const values = !req.query.sprint
+    ? v.length == 1
+      ? [req.params.id, v[0]]
+      : v.length == 2
+      ? [req.params.id, v[0], v[1]]
+      : [req.params.id, v[0], v[1], v[2]]
+    : v.length == 1
+    ? [req.params.id, req.query.sprint, v[0]]
+    : v.length == 2
+    ? [req.params.id, req.query.sprint, v[0], v[1]]
+    : [req.params.id, req.query.sprint, v[0], v[1], v[2]];
+  db.query(q, [...values], (err, data) => {
+    if (err) return res.json(err);
+    return res.json(data);
+  });
+};
+
+export const sortIssues = (req, res) => {
+  const q = req.query.sprint
+    ? "SELECT * FROM issue WHERE projectId=? AND cycleId=? "
+    : "SELECT * FROM issue WHERE projectId=? ";
+  const values = req.query.sprint
+    ? [req.params.id, req.query.sprint]
+    : [req.params.id];
+  db.query(q, [...values], (err, data) => {
+    if (err) return res.json(err);
+    if (req.body.sort == "Assignee") {
+      data.sort((a, b) =>
+        a.assigneeId > b.assigneeId ? -1 : b.assigneeId > a.assigneeId ? 1 : 0
+      );
+    } else if (req.body.sort == "Priority") {
+      const cri = { High: 1, Medium: 2, Low: 3 };
+      data.sort((a, b) =>
+        cri[a.priority] > cri[b.priority]
+          ? 1
+          : cri[b.priority] > cri[a.priority]
+          ? -1
+          : 0
+      );
+    } else if (req.body.sort == "Type") {
+      const cri = { story: 1, task: 2, bug: 3 };
+      data.sort((a, b) =>
+        cri[a.issueType] >= cri[b.issueType]
+          ? 1
+          : cri[b.issueType] >= cri[a.issueType]
+          ? -1
+          : 0
+      );
+    } else if (req.body.sort == "Status") {
+      const cri = { "To do": 1, "In progress": 2, Testing: 3, Done: 4 };
+      data.sort((a, b) =>
+        cri[a.issuestatus] >= cri[b.issuestatus]
+          ? 1
+          : cri[b.issuestatus] >= cri[a.issuestatus]
+          ? -1
+          : 0
+      );
+    }
+    return res.json(data);
+  });
+};
