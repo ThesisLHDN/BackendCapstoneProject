@@ -3,7 +3,7 @@ CREATE SCHEMA capstone;
 
 USE capstone;
 
-CREATE TABLE user (
+CREATE TABLE users (
   id        CHAR(28)      NOT NULL    PRIMARY KEY,
   email     VARCHAR(128)  NOT NULL,
   username  VARCHAR(128),
@@ -15,7 +15,7 @@ CREATE TABLE notification (
   content   TEXT          NOT NULL,
   link      VARCHAR(128),
   userId    CHAR(28)      NOT NULL,
-  FOREIGN KEY (userId) REFERENCES user (id) ON UPDATE CASCADE
+  FOREIGN KEY (userId) REFERENCES users (id) ON UPDATE CASCADE
 );
 
 CREATE TABLE workspace (
@@ -24,7 +24,7 @@ CREATE TABLE workspace (
   descript    MEDIUMTEXT,
   createTime  DATETIME      NOT NULL,
   adminId     CHAR(28)      NOT NULL,
-  FOREIGN KEY (adminId) REFERENCES user (id) ON UPDATE CASCADE
+  FOREIGN KEY (adminId) REFERENCES users (id) ON UPDATE CASCADE
 );
 
 CREATE TABLE project (
@@ -34,7 +34,7 @@ CREATE TABLE project (
   createTime  DATETIME      NOT NULL,
   ownerId     CHAR(28)      NOT NULL,
   workspaceId INT           NOT NULL,
-  FOREIGN KEY (ownerId) REFERENCES user (id) ON UPDATE CASCADE,
+  FOREIGN KEY (ownerId) REFERENCES users (id) ON UPDATE CASCADE,
   FOREIGN KEY (workspaceId) REFERENCES workspace (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -42,7 +42,7 @@ CREATE TABLE works_on (
   userId      CHAR(28)    NOT NULL,
   projectId   INT         NOT NULL,
   PRIMARY KEY (userId, projectId),
-  FOREIGN KEY (userId) REFERENCES user (id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (projectId) REFERENCES project (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -55,7 +55,7 @@ CREATE TABLE cycle (
   goal      MEDIUMTEXT,
   ownerId   CHAR(28),
   projectId INT,
-  FOREIGN KEY (ownerId) REFERENCES user (id) ON UPDATE CASCADE,
+  FOREIGN KEY (ownerId) REFERENCES users (id) ON UPDATE CASCADE,
   FOREIGN KEY (projectId) REFERENCES project (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -88,10 +88,10 @@ CREATE TABLE issue (
   assigneeId    CHAR(28),
   epicId        INT,
   parentId      INT,
-  FOREIGN KEY (reporterId) REFERENCES user (id) ON UPDATE CASCADE,
+  FOREIGN KEY (reporterId) REFERENCES users (id) ON UPDATE CASCADE,
   FOREIGN KEY (projectId) REFERENCES project (id) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (cycleId) REFERENCES cycle (id) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (assigneeId) REFERENCES user (id) ON UPDATE CASCADE,
+  FOREIGN KEY (assigneeId) REFERENCES users (id) ON UPDATE CASCADE,
   FOREIGN KEY (epicId) REFERENCES epic (id) ON UPDATE CASCADE,
   FOREIGN KEY (parentId) REFERENCES issue (id) ON DELETE CASCADE ON UPDATE CASCADE
 );

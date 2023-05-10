@@ -11,7 +11,7 @@ export const getWorkspaces = (req, res) => {
 
 export const getWorkspaceById = (req, res) => {
   const q =
-    "SELECT w.id, w.wsname, w.descript, w.adminId, u.username, u.email, u.photoURL FROM workspace w JOIN user u ON w.adminId = u.id WHERE w.id=?";
+    "SELECT w.id, w.wsname, w.descript, w.adminId, u.username, u.email, u.photoURL FROM workspace w JOIN users u ON w.adminId = u.id WHERE w.id=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(data[0]);
@@ -28,7 +28,7 @@ export const getLastestWorkspace = (req, res) => {
 
 export const getAdmin = (req, res) => {
   const q =
-    "SELECT * FROM workspace JOIN user ON user.id = workspace.adminId WHERE workspace.id=?";
+    "SELECT * FROM workspace JOIN users ON user.id = workspace.adminId WHERE workspace.id=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(data[0]);
@@ -37,7 +37,7 @@ export const getAdmin = (req, res) => {
 
 export const getWorkspaceMember = (req, res) => {
   const q =
-    "SELECT user.id, user.username, user.email, user.photoURL FROM user JOIN works_on ON user.id = works_on.userId JOIN project ON works_on.projectId = project.id WHERE project.workspaceId=?";
+    "SELECT user.id, user.username, user.email, user.photoURL FROM users JOIN works_on ON user.id = works_on.userId JOIN project ON works_on.projectId = project.id WHERE project.workspaceId=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(data);

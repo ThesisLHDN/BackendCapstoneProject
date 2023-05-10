@@ -3,8 +3,8 @@ import { db } from "../db.js";
 export const getProjects = (req, res) => {
   const q =
     req.query.user == ""
-      ? "SELECT p.id, p.pname, u.username FROM project p JOIN user u ON p.ownerId = u.id WHERE workspaceId=?"
-      : "SELECT project.id, project.pname, user.username, user.email FROM project JOIN user ON project.ownerId = user.id JOIN works_on ON project.id = works_on.projectId WHERE project.workspaceId=? AND works_on.userId=?";
+      ? "SELECT p.id, p.pname, u.username FROM project p JOIN users u ON p.ownerId = u.id WHERE workspaceId=?"
+      : "SELECT project.id, project.pname, user.username, user.email FROM project JOIN users ON project.ownerId = user.id JOIN works_on ON project.id = works_on.projectId WHERE project.workspaceId=? AND works_on.userId=?";
   const values = [req.params.id];
   db.query(q, [...values, req.query.user], (err, data) => {
     if (err) return res.json(err);
@@ -14,7 +14,7 @@ export const getProjects = (req, res) => {
 
 export const getProjectById = (req, res) => {
   const q =
-    "SELECT p.id, p.pname, p.pkey, p.ownerId, p.workspaceId, w.wsname, w.adminId, u.username, u.email FROM project p JOIN workspace w ON p.workspaceId = w.id JOIN user u ON w.adminId = u.id WHERE p.id=?";
+    "SELECT p.id, p.pname, p.pkey, p.ownerId, p.workspaceId, w.wsname, w.adminId, u.username, u.email FROM project p JOIN workspace w ON p.workspaceId = w.id JOIN users u ON w.adminId = u.id WHERE p.id=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(data[0]);
@@ -23,7 +23,7 @@ export const getProjectById = (req, res) => {
 
 export const getProjectMembers = (req, res) => {
   const q =
-    "SELECT user.id, user.username, user.email FROM works_on JOIN user ON works_on.userId = user.id WHERE works_on.projectId=?";
+    "SELECT user.id, user.username, user.email FROM works_on JOIN users ON works_on.userId = user.id WHERE works_on.projectId=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(data);
@@ -47,7 +47,7 @@ export const createProject = (req, res) => {
 };
 
 export const addProjectMember = (req, res) => {
-  const q = "SELECT id FROM user WHERE email=?";
+  const q = "SELECT id FROM users WHERE email=?";
   db.query(q, [req.body.email], (err, data) => {
     if (err) return res.json(err);
     if (data.length == 0) return res.json("User does not exist!");
