@@ -4,7 +4,7 @@ export const getProjects = (req, res) => {
   const q =
     req.query.user == ""
       ? "SELECT p.id, p.pname, u.username FROM project p JOIN users u ON p.ownerId = u.id WHERE workspaceId=?"
-      : "SELECT project.id, project.pname, user.username, user.email FROM project JOIN users ON project.ownerId = user.id JOIN works_on ON project.id = works_on.projectId WHERE project.workspaceId=? AND works_on.userId=?";
+      : "SELECT project.id, project.pname, users.username, users.email FROM project JOIN users ON project.ownerId = users.id JOIN works_on ON project.id = works_on.projectId WHERE project.workspaceId=? AND works_on.userId=?";
   const values = [req.params.id];
   db.query(q, [...values, req.query.user], (err, data) => {
     if (err) return res.json(err);
@@ -23,7 +23,7 @@ export const getProjectById = (req, res) => {
 
 export const getProjectMembers = (req, res) => {
   const q =
-    "SELECT user.id, user.username, user.email FROM works_on JOIN users ON works_on.userId = user.id WHERE works_on.projectId=?";
+    "SELECT users.id, users.username, users.email FROM works_on JOIN users ON works_on.userId = users.id WHERE works_on.projectId=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(data);
