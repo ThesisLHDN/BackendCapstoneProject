@@ -156,7 +156,6 @@ export const updateIssue = (req, res) => {
             i++
           ) {
             if (iss[i].id == req.params.id) continue;
-            console.log(iss[i]);
             const p = "UPDATE issue SET `issueorder`=? WHERE id=?";
             const vals = [iss[i].issueorder - 1];
             db.query(p, [...vals, iss[i].id], (err, data) => {

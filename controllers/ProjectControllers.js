@@ -42,7 +42,13 @@ export const createProject = (req, res) => {
   ];
   db.query(q, [values], (err, data) => {
     if (err) return res.json(err);
-    return res.json("Project has been created successfully.");
+    // return res.json("Project has been created successfully.");
+    const q = "SELECT id FROM project WHERE pname=? AND createTime=?";
+    const values = [req.body.pname];
+    db.query(q, [...values, req.body.createTime], (err, data) => {
+      if (err) return res.json(err);
+      return res.json(data[0]);
+    });
   });
 };
 
@@ -67,7 +73,7 @@ export const editProject = (req, res) => {
   const values = [req.body.pname, req.body.pkey];
   db.query(q, [...values, pId], (err, data) => {
     if (err) return res.json(err);
-    return res.json("Workspace has been updated successfully.");
+    return res.json("Project has been updated successfully.");
   });
 };
 

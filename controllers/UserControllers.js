@@ -22,3 +22,13 @@ export const addUser = (req, res) => {
     return res.json("User has been added successfully.");
   });
 };
+
+export const editUser = (req, res) => {
+  const q = "UPDATE users SET `username`=?, `photoURL`=? WHERE `id`=?";
+  const uId = [req.params.id];
+  const values = [req.body.username, req.body.photoURL];
+  db.query(q, [...values, uId], (err, data) => {
+    if (err) return res.json(err);
+    return res.json("User has been updated successfully.");
+  });
+};
