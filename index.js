@@ -6,6 +6,7 @@ import ProjectRoutes from "./routes/ProjectRoutes.js";
 import SprintRoutes from "./routes/SprintRoutes.js";
 import IssueRoutes from "./routes/IssueRoutes.js";
 import TagRoutes from "./routes/TagRoutes.js";
+import DashboardRoutes from "./routes/DashboardRoutes.js";
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(ProjectRoutes);
 app.use(SprintRoutes);
 app.use(IssueRoutes);
 app.use(TagRoutes);
+app.use(DashboardRoutes);
 
 app.get("/", (req, res) => {
   res.json("This is backend");
