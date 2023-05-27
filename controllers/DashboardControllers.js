@@ -88,3 +88,87 @@ export const getBurndown = (req, res) => {
     }
   });
 };
+
+export const getCumulative = (req, res) => {
+  if (req.query.sprint) {
+    const q =
+      "SELECT * FROM capstone.cycle WHERE id=(SELECT MAX(id) FROM cycle WHERE projectId=?)";
+    const values = [req.params.id];
+    db.query(q, [...values], (err, data) => {
+      if (err) return res.json(err);
+      const today = new Date();
+      if (data.length != 0) {
+        if (data[0].startDate < today && today < data[0].endDate) {
+          const q = "SELECT * FROM sprint_log WHERE sprintId=?";
+          db.query(q, [data[0].id], (err, data) => {
+            if (err) return res.json(err);
+
+            const dates = data.map(
+              (item) =>
+                new Date(item.dateUpdate).getDate() +
+                " " +
+                new Date(item.dateUpdate).toLocaleString("en-us", {
+                  month: "short",
+                })
+            );
+
+            const todos = data.map(
+              (item) =>
+                item.issueToDo +
+                item.issueInProgress +
+                item.issueTesting +
+                item.issueDone
+            );
+
+            const inprogress = data.map(
+              (item) =>
+                item.issueInProgress + item.issueTesting + item.issueDone
+            );
+
+            const testings = data.map(
+              (item) => item.issueTesting + item.issueDone
+            );
+            const dones = data.map((item) => item.issueDone);
+
+            return res.json([dates, todos, inprogress, testings, dones]);
+          });
+        } else {
+          return res.json([]);
+        }
+      } else {
+        return res.json([]);
+      }
+    });
+  } else {
+    const q = "SELECT * FROM project_log WHERE projectId=?";
+    db.query(q, [req.params.id], (err, data) => {
+      if (err) return res.json(err);
+
+      const dates = data.map(
+        (item) =>
+          new Date(item.dateUpdate).getDate() +
+          " " +
+          new Date(item.dateUpdate).toLocaleString("en-us", {
+            month: "short",
+          })
+      );
+
+      const todos = data.map(
+        (item) =>
+          item.issueToDo +
+          item.issueInProgress +
+          item.issueTesting +
+          item.issueDone
+      );
+
+      const inprogress = data.map(
+        (item) => item.issueInProgress + item.issueTesting + item.issueDone
+      );
+
+      const testings = data.map((item) => item.issueTesting + item.issueDone);
+      const dones = data.map((item) => item.issueDone);
+
+      return res.json([dates, todos, inprogress, testings, dones]);
+    });
+  }
+};

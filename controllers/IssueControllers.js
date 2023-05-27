@@ -350,7 +350,9 @@ export const updateIssue = (req, res) => {
           "SELECT SUM(estimatePoint) as pointRemain FROM capstone.issue WHERE cycleId=? AND issuestatus!='Done'";
         db.query(q, [sprintId], (err, data) => {
           if (err) return res.json(err);
-          const pointRemain = data[0].pointRemain;
+
+          const pointRemain =
+            data[0].pointRemain == null ? 0 : data[0].pointRemain;
 
           const t =
             "SELECT issuestatus, COUNT(*) as numbers FROM capstone.issue WHERE projectId=(SELECT projectId FROM issue WHERE id=?) AND cycleId=? GROUP BY issuestatus";
