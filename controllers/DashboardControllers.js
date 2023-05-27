@@ -172,3 +172,76 @@ export const getCumulative = (req, res) => {
     });
   }
 };
+
+export const getPerformance = (req, res) => {
+  const q =
+    "SELECT users.id, users.username, users.photoURL FROM works_on JOIN users ON works_on.userId = users.id WHERE works_on.projectId=?";
+  db.query(q, [req.params.id], (err, data) => {
+    if (err) return res.json(err);
+    // console.log(data);
+    const memberList = data;
+
+    if (req.query.sprint) {
+      const q =
+        "SELECT * FROM cycle WHERE id=(SELECT MAX(id) FROM cycle WHERE projectId=?)";
+      const values = [req.params.id];
+      db.query(q, [...values], (err, data) => {
+        if (err) return res.json(err);
+
+        const today = new Date();
+        if (data.length != 0) {
+          if (data[0].startDate < today && today < data[0].endDate) {
+            for (let i = 0; i < memberList.length; i++) {
+              const numOfIssue = {
+                "To do": [0, 0],
+                "In progress": [0, 0],
+                Testing: [0, 0],
+                Done: [0, 0],
+              };
+              const q =
+                "SELECT issuestatus, COUNT(*) as numbers, SUM(estimatePoint) as points FROM capstone.issue WHERE projectId=? AND cycleId=? AND assigneeId=? GROUP BY issuestatus;";
+              const values = [req.params.id, data[0].id, memberList[i].id];
+              db.query(q, [...values], (err, data) => {
+                if (err) return res.json(err);
+                for (let i = 0; i < data.length; i++)
+                  numOfIssue[data[i].issuestatus] = [
+                    data[i].numbers,
+                    data[i].points ? data[i].points : 0,
+                  ];
+                memberList[i] = { ...memberList[i], ...numOfIssue };
+                if (i == memberList.length - 1) return res.json(memberList);
+              });
+            }
+          } else {
+            return res.json([]);
+          }
+        } else {
+          return res.json([]);
+        }
+      });
+    } else {
+      for (let i = 0; i < memberList.length; i++) {
+        const numOfIssue = {
+          "To do": [0, 0],
+          "In progress": [0, 0],
+          Testing: [0, 0],
+          Done: [0, 0],
+        };
+        const q =
+          "SELECT issuestatus, COUNT(*) as numbers, SUM(estimatePoint) as points FROM capstone.issue WHERE projectId=? AND assigneeId=? GROUP BY issuestatus;";
+        const values = [req.params.id, memberList[i].id];
+        db.query(q, [...values], (err, data) => {
+          if (err) return res.json(err);
+
+          for (let i = 0; i < data.length; i++)
+            numOfIssue[data[i].issuestatus] = [
+              data[i].numbers,
+              data[i].points ? data[i].points : 0,
+            ];
+          memberList[i] = { ...memberList[i], ...numOfIssue };
+          if (i == memberList.length - 1) return res.json(memberList);
+        });
+      }
+    }
+  });
+};
