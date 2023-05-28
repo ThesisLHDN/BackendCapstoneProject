@@ -11,7 +11,7 @@ import DashboardRoutes from "./routes/DashboardRoutes.js";
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({credentials: true}));
 app.use(UserRoutes);
 app.use(WorkspaceRoutes);
 app.use(ProjectRoutes);
