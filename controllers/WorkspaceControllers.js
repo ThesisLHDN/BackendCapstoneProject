@@ -39,6 +39,7 @@ export const getWorkspaceMember = (req, res) => {
   const q =
     "SELECT users.id, users.username, users.email, users.photoURL FROM users JOIN works_on ON users.id = works_on.userId JOIN project ON works_on.projectId = project.id WHERE project.workspaceId=?";
   db.query(q, [req.params.id], (err, data) => {
+    // console.log(data);
     if (err) return res.json(err);
     return res.json(data);
   });

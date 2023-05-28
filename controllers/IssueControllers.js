@@ -52,7 +52,12 @@ export const createIssue = (req, res) => {
       ];
       db.query(q, [values], (err, data) => {
         if (err) return res.json(err);
-        return res.json("Issue has been created successfully.");
+        const q = "SELECT id FROM issue WHERE issuename=? AND createTime=?";
+        const values = [req.body.issuename];
+        db.query(q, [...values, req.body.createTime], (err, data) => {
+          if (err) return res.json(err);
+          return res.json(data[0]);
+        });
       });
     });
   });
