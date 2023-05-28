@@ -62,15 +62,16 @@ export const addProjectMember = (req, res) => {
     const values = [data[0].id, req.body.projectId];
     db.query(q, [values], (err, data) => {
       if (err) return res.json(err);
+      console.log("AAAA");
       return res.json("Member has been added successfully.");
     });
   });
 };
 
 export const editProject = (req, res) => {
-  const q = "UPDATE project SET `pname`=?, `pkey`=? WHERE `id`=?";
+  const q = "UPDATE project SET `pname`=?, `pkey`=?, `ownerId`=? WHERE `id`=?";
   const pId = [req.params.id];
-  const values = [req.body.pname, req.body.pkey];
+  const values = [req.body.pname, req.body.pkey, req.body.ownerId];
   db.query(q, [...values, pId], (err, data) => {
     if (err) return res.json(err);
     return res.json("Project has been updated successfully.");
@@ -82,5 +83,13 @@ export const deleteProject = (req, res) => {
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json("Project has been deleted successfully.");
+  });
+};
+
+export const deleteProjectMember = (req, res) => {
+  const q = "DELETE FROM works_on WHERE projectId=? AND userId=?";
+  db.query(q, [req.params.id, req.query.uid], (err, data) => {
+    if (err) return res.json(err);
+    return res.json("Member has been deleted successfully.");
   });
 };

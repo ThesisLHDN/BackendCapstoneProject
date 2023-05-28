@@ -74,3 +74,12 @@ export const completeSprint = (req, res) => {
     });
   });
 };
+
+export const updateSprint = (req, res) => {
+  const q = "UPDATE cycle SET `cyclename`=?, `endDate`=?, `goal`=? WHERE id=?";
+  const values = [req.body.cyclename, req.body.endDate, req.body.goal];
+  db.query(q, [...values, req.params.id], (err, data) => {
+    if (err) return res.json(err);
+    return res.json("Sprint has been updated successfully.");
+  });
+};

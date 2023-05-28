@@ -7,6 +7,7 @@ import {
   editProject,
   getProjectMembers,
   deleteProject,
+  deleteProjectMember,
 } from "../controllers/ProjectControllers.js";
 
 const router = express.Router();
@@ -18,5 +19,6 @@ router.post("/project", createProject);
 router.post("/pmember", addProjectMember);
 router.put("/project/:id", editProject);
 router.delete("/project/:id", deleteProject);
+router.delete("/pmember/:id", deleteProjectMember);
 
 export default router;
