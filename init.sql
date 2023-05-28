@@ -102,3 +102,28 @@ CREATE TABLE issue_tag (
   issueId INT           NOT NULL,
   FOREIGN KEY (issueId) REFERENCES issue (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+CREATE TABLE sprint_log (
+  dateUpdate      DATE,
+  sprintId        INT,
+  pointRemain     INT,
+  totalIssue      INT,
+  issueToDo       INT,
+  issueInProgress INT,
+  issueTesting    INT,
+  issueDone       INT,
+  PRIMARY KEY (dateUpdate, sprintId),
+  FOREIGN KEY (sprintId) REFERENCES cycle (id)
+);
+
+CREATE TABLE project_log (
+  dateUpdate      DATE,
+  projectId       INT,
+  totalIssue      INT,
+  issueToDo       INT,
+  issueInProgress INT,
+  issueTesting    INT,
+  issueDone       INT,
+  PRIMARY KEY (dateUpdate, projectId),
+  FOREIGN KEY (projectId) REFERENCES project (id)
+);
