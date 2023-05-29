@@ -515,7 +515,7 @@ export const sortIssues = (req, res) => {
         a.assigneeId > b.assigneeId ? -1 : b.assigneeId > a.assigneeId ? 1 : 0
       );
     } else if (req.body.sort == "Priority") {
-      const cri = { High: 1, Medium: 2, Low: 3 };
+      const cri = { Critical: 1, High: 2, Medium: 3, Low: 4, null: 5 };
       data.sort((a, b) =>
         cri[a.priority] > cri[b.priority]
           ? 1
@@ -525,6 +525,7 @@ export const sortIssues = (req, res) => {
       );
     } else if (req.body.sort == "Type") {
       const cri = { story: 1, task: 2, bug: 3 };
+
       data.sort((a, b) =>
         cri[a.issueType] >= cri[b.issueType]
           ? 1

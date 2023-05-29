@@ -153,6 +153,55 @@ export const getCumulative = (req, res) => {
           })
       );
 
+      // if (dates.length > 20) {
+      //   let dated = dates.filter((value, index) => index % 2 == 0);
+
+      //   const todos = data
+      //     .map(
+      //       (item) =>
+      //         item.issueToDo +
+      //         item.issueInProgress +
+      //         item.issueTesting +
+      //         item.issueDone
+      //     )
+      //     .filter((value, index) => index % 2 == 0);
+
+      //   const inprogress = data
+      //     .map(
+      //       (item) => item.issueInProgress + item.issueTesting + item.issueDone
+      //     )
+      //     .filter((value, index) => index % 2 == 0);
+
+      //   const testings = data
+      //     .map((item) => item.issueTesting + item.issueDone)
+      //     .filter((value, index) => index % 2 == 0);
+
+      //   const dones = data
+      //     .map((item) => item.issueDone)
+      //     .filter((value, index) => index % 2 == 0);
+
+      //   // console.log([dated, todos, inprogress, testings, dones]);
+      //   return res.json([dated, todos, inprogress, testings, dones]);
+      // } else {
+      //   const todos = data.map(
+      //     (item) =>
+      //       item.issueToDo +
+      //       item.issueInProgress +
+      //       item.issueTesting +
+      //       item.issueDone
+      //   );
+
+      //   const inprogress = data.map(
+      //     (item) => item.issueInProgress + item.issueTesting + item.issueDone
+      //   );
+
+      //   const testings = data.map((item) => item.issueTesting + item.issueDone);
+      //   const dones = data.map((item) => item.issueDone);
+
+      //   return res.json([dates, todos, inprogress, testings, dones]);
+      // }
+
+
       const todos = data.map(
         (item) =>
           item.issueToDo +
