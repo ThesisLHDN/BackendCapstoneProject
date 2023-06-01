@@ -11,11 +11,16 @@ CREATE TABLE users (
 );
 
 CREATE TABLE notification (
-  id        INT           NOT NULL    PRIMARY KEY   AUTO_INCREMENT,
-  content   TEXT          NOT NULL,
-  link      VARCHAR(128),
-  userId    CHAR(28)      NOT NULL,
-  FOREIGN KEY (userId) REFERENCES users (id) ON UPDATE CASCADE
+  id            INT           NOT NULL    PRIMARY KEY   AUTO_INCREMENT,
+  senderName    VARCHAR(128)  NOT NULL,
+  senderAvatar  MEDIUMTEXT,
+  updatedIssue  INT,
+  projectKey    VARCHAR(8),
+  receiverId    CHAR(28),
+  type          VARCHAR(32),
+  newState      INT,
+  dateUpdate    DATETIME,
+  FOREIGN KEY (receiverId) REFERENCES users (id) ON UPDATE CASCADE
 );
 
 CREATE TABLE workspace (

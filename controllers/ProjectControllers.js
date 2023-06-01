@@ -23,7 +23,7 @@ export const getProjectById = (req, res) => {
 
 export const getProjectMembers = (req, res) => {
   const q =
-    "SELECT users.id, users.username, users.email FROM works_on JOIN users ON works_on.userId = users.id WHERE works_on.projectId=?";
+    "SELECT users.id, users.username, users.email, users.photoURL FROM works_on JOIN users ON works_on.userId = users.id WHERE works_on.projectId=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(data);
@@ -58,12 +58,19 @@ export const addProjectMember = (req, res) => {
     if (err) return res.json(err);
     if (data.length == 0) return res.json("User does not exist!");
 
-    const q = "INSERT INTO works_on (`userId`, `projectId`) VALUES (?)";
-    const values = [data[0].id, req.body.projectId];
-    db.query(q, [values], (err, data) => {
+    const userId = data[0].id;
+    const q = "SELECT * FROM works_on WHERE userId=? AND projectId=?";
+    db.query(q, [data[0].id, req.body.projectId], (err, data) => {
       if (err) return res.json(err);
-      console.log("AAAA");
-      return res.json("Member has been added successfully.");
+      if (data.length != 0) return res.json("User is working in this project");
+      else {
+        const q = "INSERT INTO works_on (`userId`, `projectId`) VALUES (?)";
+        const values = [userId, req.body.projectId];
+        db.query(q, [values], (err, data) => {
+          if (err) return res.json(err);
+          return res.json("Member has been added successfully.");
+        });
+      }
     });
   });
 };

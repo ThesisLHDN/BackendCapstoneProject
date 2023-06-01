@@ -346,67 +346,73 @@ export const updateIssue = (req, res) => {
     db.query(q, [req.params.id], (err, data) => {
       if (err) return res.json(err);
 
-      const sprintId = data[0].id;
-      if (data[0].startDate < today && today < data[0].endDate) {
-        const q =
-          "SELECT SUM(estimatePoint) as pointRemain FROM capstone.issue WHERE cycleId=? AND issuestatus!='Done'";
-        db.query(q, [sprintId], (err, data) => {
-          if (err) return res.json(err);
-
-          const pointRemain =
-            data[0].pointRemain == null ? 0 : data[0].pointRemain;
-
-          const t =
-            "SELECT issuestatus, COUNT(*) as numbers FROM capstone.issue WHERE projectId=(SELECT projectId FROM issue WHERE id=?) AND cycleId=? GROUP BY issuestatus";
-          db.query(t, [req.params.id, sprintId], (err, data) => {
+      if (data.length != 0) {
+        const sprintId = data[0].id;
+        if (data[0].startDate < today && today < data[0].endDate) {
+          const q =
+            "SELECT SUM(estimatePoint) as pointRemain FROM capstone.issue WHERE cycleId=? AND issuestatus!='Done'";
+          db.query(q, [sprintId], (err, data) => {
             if (err) return res.json(err);
 
-            let tempData = {
-              "To do": 0,
-              "In progress": 0,
-              Testing: 0,
-              Done: 0,
-            };
-            for (let i = 0; i < data.length; i++)
-              tempData[data[i]?.issuestatus] = data[i]?.numbers;
-            const totalIssue = Object.values(tempData).reduce(
-              (sum, a) => sum + a,
-              0
-            );
+            const pointRemain =
+              data[0].pointRemain == null ? 0 : data[0].pointRemain;
 
-            const q =
-              "SELECT * FROM sprint_log WHERE dateUpdate=? AND sprintId=?";
-            db.query(q, [formatToday, sprintId], (err, data) => {
+            const t =
+              "SELECT issuestatus, COUNT(*) as numbers FROM capstone.issue WHERE projectId=(SELECT projectId FROM issue WHERE id=?) AND cycleId=? GROUP BY issuestatus";
+            db.query(t, [req.params.id, sprintId], (err, data) => {
               if (err) return res.json(err);
 
-              const values = [
-                pointRemain,
-                totalIssue,
-                tempData["To do"],
-                tempData["In progress"],
-                tempData["Testing"],
-                tempData["Done"],
-              ];
-              if (data.length == 0) {
-                const q =
-                  "INSERT INTO sprint_log (`dateUpdate`, `sprintId`, `pointRemain`, `totalIssue`, `issueToDo`, `issueInProgress`, `issueTesting`, `issueDone`) VALUES (?)";
-                db.query(
-                  q,
-                  [[formatToday, sprintId, ...values]],
-                  (err, data) => {
-                    if (err) return res.json(err);
-                  }
-                );
-              } else {
-                const q =
-                  "UPDATE sprint_log SET `pointRemain`=?, `totalIssue`=?, `issueToDo`=?, `issueInProgress`=?, `issueTesting`=?, `issueDone`=? WHERE dateUpdate=? AND sprintId=?";
-                db.query(q, [...values, formatToday, sprintId], (err, data) => {
-                  if (err) return res.json(err);
-                });
-              }
+              let tempData = {
+                "To do": 0,
+                "In progress": 0,
+                Testing: 0,
+                Done: 0,
+              };
+              for (let i = 0; i < data.length; i++)
+                tempData[data[i]?.issuestatus] = data[i]?.numbers;
+              const totalIssue = Object.values(tempData).reduce(
+                (sum, a) => sum + a,
+                0
+              );
+
+              const q =
+                "SELECT * FROM sprint_log WHERE dateUpdate=? AND sprintId=?";
+              db.query(q, [formatToday, sprintId], (err, data) => {
+                if (err) return res.json(err);
+
+                const values = [
+                  pointRemain,
+                  totalIssue,
+                  tempData["To do"],
+                  tempData["In progress"],
+                  tempData["Testing"],
+                  tempData["Done"],
+                ];
+                if (data.length == 0) {
+                  const q =
+                    "INSERT INTO sprint_log (`dateUpdate`, `sprintId`, `pointRemain`, `totalIssue`, `issueToDo`, `issueInProgress`, `issueTesting`, `issueDone`) VALUES (?)";
+                  db.query(
+                    q,
+                    [[formatToday, sprintId, ...values]],
+                    (err, data) => {
+                      if (err) return res.json(err);
+                    }
+                  );
+                } else {
+                  const q =
+                    "UPDATE sprint_log SET `pointRemain`=?, `totalIssue`=?, `issueToDo`=?, `issueInProgress`=?, `issueTesting`=?, `issueDone`=? WHERE dateUpdate=? AND sprintId=?";
+                  db.query(
+                    q,
+                    [...values, formatToday, sprintId],
+                    (err, data) => {
+                      if (err) return res.json(err);
+                    }
+                  );
+                }
+              });
             });
           });
-        });
+        }
       }
     });
 
