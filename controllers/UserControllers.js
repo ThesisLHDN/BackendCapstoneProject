@@ -44,7 +44,7 @@ export const getNotiById = (req, res) => {
   const q = "SELECT * FROM notification WHERE receiverId=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
-    return res.json(data);
+    return res.json(data.reverse());
   });
 };
 

@@ -18,7 +18,7 @@ CREATE TABLE notification (
   projectKey    VARCHAR(8),
   receiverId    CHAR(28),
   type          VARCHAR(32),
-  newState      INT,
+  newState      VARCHAR(32),
   dateUpdate    DATETIME,
   FOREIGN KEY (receiverId) REFERENCES users (id) ON UPDATE CASCADE
 );
