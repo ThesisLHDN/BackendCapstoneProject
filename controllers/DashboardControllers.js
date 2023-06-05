@@ -3,7 +3,7 @@ import { db } from "../db.js";
 export const getWorkload = (req, res) => {
   if (req.query.sprint) {
     const q =
-      "SELECT * FROM capstone.cycle WHERE id=(SELECT MAX(id) FROM cycle WHERE projectId=?)";
+      "SELECT * FROM cycle WHERE id=(SELECT MAX(id) FROM cycle WHERE projectId=?)";
     const values = [req.params.id];
     db.query(q, [...values], (err, data) => {
       if (err) return res.json(err);
@@ -11,7 +11,7 @@ export const getWorkload = (req, res) => {
       if (data.length != 0) {
         if (data[0].startDate < today && today < data[0].endDate) {
           const q =
-            "SELECT issuestatus, COUNT(*) as numbers FROM capstone.issue WHERE projectId=? AND cycleId=? GROUP BY issuestatus;";
+            "SELECT issuestatus, COUNT(*) as numbers FROM issue WHERE projectId=? AND cycleId=? GROUP BY issuestatus;";
           const values = [req.params.id, data[0].id];
           db.query(q, [...values], (err, data) => {
             if (err) return res.json(err);
@@ -26,7 +26,7 @@ export const getWorkload = (req, res) => {
     });
   } else {
     const q =
-      "SELECT issuestatus, COUNT(*) as numbers FROM capstone.issue WHERE projectId=? GROUP BY issuestatus;";
+      "SELECT issuestatus, COUNT(*) as numbers FROM issue WHERE projectId=? GROUP BY issuestatus;";
     const values = [req.params.id];
     db.query(q, [...values], (err, data) => {
       if (err) return res.json(err);
@@ -37,7 +37,7 @@ export const getWorkload = (req, res) => {
 
 export const getBurndown = (req, res) => {
   const q =
-    "SELECT * FROM capstone.cycle WHERE id=(SELECT MAX(id) FROM cycle WHERE projectId=?)";
+    "SELECT * FROM cycle WHERE id=(SELECT MAX(id) FROM cycle WHERE projectId=?)";
   const values = [req.params.id];
   db.query(q, [...values], (err, data) => {
     if (err) return res.json(err);
@@ -92,7 +92,7 @@ export const getBurndown = (req, res) => {
 export const getCumulative = (req, res) => {
   if (req.query.sprint) {
     const q =
-      "SELECT * FROM capstone.cycle WHERE id=(SELECT MAX(id) FROM cycle WHERE projectId=?)";
+      "SELECT * FROM cycle WHERE id=(SELECT MAX(id) FROM cycle WHERE projectId=?)";
     const values = [req.params.id];
     db.query(q, [...values], (err, data) => {
       if (err) return res.json(err);
@@ -201,7 +201,6 @@ export const getCumulative = (req, res) => {
       //   return res.json([dates, todos, inprogress, testings, dones]);
       // }
 
-
       const todos = data.map(
         (item) =>
           item.issueToDo +
@@ -248,7 +247,7 @@ export const getPerformance = (req, res) => {
                 Done: [0, 0],
               };
               const q =
-                "SELECT issuestatus, COUNT(*) as numbers, SUM(estimatePoint) as points FROM capstone.issue WHERE projectId=? AND cycleId=? AND assigneeId=? GROUP BY issuestatus;";
+                "SELECT issuestatus, COUNT(*) as numbers, SUM(estimatePoint) as points FROM issue WHERE projectId=? AND cycleId=? AND assigneeId=? GROUP BY issuestatus;";
               const values = [req.params.id, data[0].id, memberList[i].id];
               db.query(q, [...values], (err, data) => {
                 if (err) return res.json(err);
@@ -277,7 +276,7 @@ export const getPerformance = (req, res) => {
           Done: [0, 0],
         };
         const q =
-          "SELECT issuestatus, COUNT(*) as numbers, SUM(estimatePoint) as points FROM capstone.issue WHERE projectId=? AND assigneeId=? GROUP BY issuestatus;";
+          "SELECT issuestatus, COUNT(*) as numbers, SUM(estimatePoint) as points FROM issue WHERE projectId=? AND assigneeId=? GROUP BY issuestatus;";
         const values = [req.params.id, memberList[i].id];
         db.query(q, [...values], (err, data) => {
           if (err) return res.json(err);

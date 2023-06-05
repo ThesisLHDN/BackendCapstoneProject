@@ -63,7 +63,7 @@ export const createIssue = (req, res) => {
         const projectId = req.body.projectId;
         // Update to project log
         const u =
-          "SELECT issuestatus, COUNT(*) as numbers FROM capstone.issue WHERE projectId=? GROUP BY issuestatus";
+          "SELECT issuestatus, COUNT(*) as numbers FROM issue WHERE projectId=? GROUP BY issuestatus";
         db.query(u, [projectId], (err, data) => {
           if (err) return res.json(err);
 
@@ -122,13 +122,13 @@ export const createIssue = (req, res) => {
             const sprintId = data[0].id;
             if (data[0].startDate < today && today < data[0].endDate) {
               const q =
-                "SELECT SUM(estimatePoint) as pointRemain FROM capstone.issue WHERE cycleId=? AND issuestatus!='Done'";
+                "SELECT SUM(estimatePoint) as pointRemain FROM issue WHERE cycleId=? AND issuestatus!='Done'";
               db.query(q, [sprintId], (err, data) => {
                 if (err) return res.json(err);
                 const pointRemain = data[0].pointRemain;
 
                 const t =
-                  "SELECT issuestatus, COUNT(*) as numbers FROM capstone.issue WHERE projectId=? AND cycleId=? GROUP BY issuestatus";
+                  "SELECT issuestatus, COUNT(*) as numbers FROM issue WHERE projectId=? AND cycleId=? GROUP BY issuestatus";
                 db.query(t, [projectId, sprintId], (err, data) => {
                   if (err) return res.json(err);
 
@@ -350,7 +350,7 @@ export const updateIssue = (req, res) => {
         const sprintId = data[0].id;
         if (data[0].startDate < today && today < data[0].endDate) {
           const q =
-            "SELECT SUM(estimatePoint) as pointRemain FROM capstone.issue WHERE cycleId=? AND issuestatus!='Done'";
+            "SELECT SUM(estimatePoint) as pointRemain FROM issue WHERE cycleId=? AND issuestatus!='Done'";
           db.query(q, [sprintId], (err, data) => {
             if (err) return res.json(err);
 
@@ -358,7 +358,7 @@ export const updateIssue = (req, res) => {
               data[0].pointRemain == null ? 0 : data[0].pointRemain;
 
             const t =
-              "SELECT issuestatus, COUNT(*) as numbers FROM capstone.issue WHERE projectId=(SELECT projectId FROM issue WHERE id=?) AND cycleId=? GROUP BY issuestatus";
+              "SELECT issuestatus, COUNT(*) as numbers FROM issue WHERE projectId=(SELECT projectId FROM issue WHERE id=?) AND cycleId=? GROUP BY issuestatus";
             db.query(t, [req.params.id, sprintId], (err, data) => {
               if (err) return res.json(err);
 
@@ -418,7 +418,7 @@ export const updateIssue = (req, res) => {
 
     // Update to project log
     const t =
-      "SELECT issuestatus, COUNT(*) as numbers FROM capstone.issue WHERE projectId=(SELECT projectId FROM issue WHERE id=?) GROUP BY issuestatus";
+      "SELECT issuestatus, COUNT(*) as numbers FROM issue WHERE projectId=(SELECT projectId FROM issue WHERE id=?) GROUP BY issuestatus";
     db.query(t, [req.params.id], (err, data) => {
       if (err) return res.json(err);
 
