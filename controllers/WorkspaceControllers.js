@@ -2,7 +2,7 @@ import { db } from "../db.js";
 
 export const getWorkspaces = (req, res) => {
   const q =
-    "SELECT DISTINCT workspace.id, workspace.wsname FROM works_on JOIN project ON works_on.projectId = project.id RIGHT JOIN workspace ON project.workspaceId = workspace.id WHERE workspace.adminId=? OR works_on.userId=?";
+    "SELECT DISTINCT workspace.id, workspace.wsname, workspace.adminId FROM works_on JOIN project ON works_on.projectId = project.id RIGHT JOIN workspace ON project.workspaceId = workspace.id WHERE workspace.adminId=? OR works_on.userId=?";
   db.query(q, [req.query.user, req.query.user], (err, data) => {
     if (err) return res.json(err);
     return res.json(data.reverse());

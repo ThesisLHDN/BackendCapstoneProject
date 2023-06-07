@@ -475,8 +475,8 @@ export const deleteIssue = (req, res) => {
 
 export const filterIssues = (req, res) => {
   const temp = req.query.sprint
-    ? "SELECT * FROM issue WHERE projectId=? AND cycleId=? "
-    : "SELECT * FROM issue WHERE projectId=? ";
+    ? "SELECT issue.*, issue_tag.tagname FROM issue LEFT JOIN issue_tag ON issue.id=issue_tag.issueId WHERE issue.projectId=? AND issue.cycleId=? "
+    : "SELECT issue.*, issue_tag.tagname FROM issue LEFT JOIN issue_tag ON issue.id=issue_tag.issueId WHERE issue.projectId=? ";
   var k = "";
   var v = [];
   for (const key in req.body) {
@@ -486,7 +486,9 @@ export const filterIssues = (req, res) => {
         ? "AND issuestatus=? "
         : key == "type"
         ? "AND issueType=? "
-        : "AND priority=? ";
+        : key == "priority"
+        ? "AND priority=? "
+        : "AND tagname=? ";
     v.push(req.body[key]);
   }
   const q = temp + k;
@@ -495,14 +497,21 @@ export const filterIssues = (req, res) => {
       ? [req.params.id, v[0]]
       : v.length == 2
       ? [req.params.id, v[0], v[1]]
-      : [req.params.id, v[0], v[1], v[2]]
+      : v.length == 3
+      ? [req.params.id, v[0], v[1], v[2]]
+      : [req.params.id, v[0], v[1], v[2], v[3]]
     : v.length == 1
     ? [req.params.id, req.query.sprint, v[0]]
     : v.length == 2
     ? [req.params.id, req.query.sprint, v[0], v[1]]
-    : [req.params.id, req.query.sprint, v[0], v[1], v[2]];
+    : v.length == 3
+    ? [req.params.id, req.query.sprint, v[0], v[1], v[2]]
+    : [req.params.id, req.query.sprint, v[0], v[1], v[2], v[3]];
   db.query(q, [...values], (err, data) => {
     if (err) return res.json(err);
+    data = data.filter(
+      (value, index, self) => index === self.findIndex((t) => t.id === value.id)
+    );
     return res.json(data);
   });
 };

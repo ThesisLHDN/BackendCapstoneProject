@@ -1,7 +1,20 @@
 import { db } from "../db.js";
 
 export const getTagsByIssue = (req, res) => {
-  const q = "SELECT * FROM issue_tag WHERE issueId=?";
+  const q = "SELECT * FROM issue_tag";
+  db.query(q, [], (err, data) => {
+    const totalTags = data;
+    const q = "SELECT * FROM issue_tag WHERE issueId=?";
+    db.query(q, [req.params.id], (err, data) => {
+      if (err) return res.json(err);
+      return res.json([data, totalTags]);
+    });
+  });
+};
+
+export const getTagsByProject = (req, res) => {
+  const q =
+    "SELECT DISTINCT tagname FROM issue_tag JOIN issue ON issue_tag.issueId=issue.id WHERE projectId=?";
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.json(data);
