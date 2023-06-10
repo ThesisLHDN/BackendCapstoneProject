@@ -525,35 +525,95 @@ export const sortIssues = (req, res) => {
     : [req.params.id];
   db.query(q, [...values], (err, data) => {
     if (err) return res.json(err);
+
+    const pri = { Critical: 1, High: 2, Medium: 3, Low: 4, null: 5 };
+    const type = { story: 1, task: 2, bug: 3 };
+    const status = { "To do": 1, "In progress": 2, Testing: 3, Done: 4 };
+
     if (req.body.sort == "Assignee") {
       data.sort((a, b) =>
         a.assigneeId > b.assigneeId ? -1 : b.assigneeId > a.assigneeId ? 1 : 0
       );
-    } else if (req.body.sort == "Priority") {
-      const cri = { Critical: 1, High: 2, Medium: 3, Low: 4, null: 5 };
       data.sort((a, b) =>
-        cri[a.priority] > cri[b.priority]
+        a.assigneeId == b.assigneeId &&
+        status[a.issuestatus] > status[b.issuestatus]
           ? 1
-          : cri[b.priority] > cri[a.priority]
+          : a.assigneeId == b.assigneeId &&
+            status[b.issuestatus] > status[a.issuestatus]
           ? -1
           : 0
       );
-    } else if (req.body.sort == "Type") {
-      const cri = { story: 1, task: 2, bug: 3 };
-
       data.sort((a, b) =>
-        cri[a.issueType] >= cri[b.issueType]
+        a.assigneeId == b.assigneeId &&
+        status[a.issuestatus] == status[b.issuestatus] &&
+        pri[a.priority] > pri[b.priority]
           ? 1
-          : cri[b.issueType] >= cri[a.issueType]
+          : a.assigneeId == b.assigneeId &&
+            status[a.issuestatus] == status[b.issuestatus] &&
+            pri[b.priority] > pri[a.priority]
+          ? -1
+          : 0
+      );
+    } else if (req.body.sort == "Priority") {
+      data.sort((a, b) =>
+        status[a.issuestatus] > status[b.issuestatus]
+          ? 1
+          : status[b.issuestatus] > status[a.issuestatus]
+          ? -1
+          : 0
+      );
+      const numOfDone = data.filter((e) => e.issuestatus == "Done").length;
+      const tempData = data.slice(0, data.length - numOfDone);
+      tempData.sort((a, b) =>
+        pri[a.priority] > pri[b.priority]
+          ? 1
+          : pri[b.priority] > pri[a.priority]
+          ? -1
+          : 0
+      );
+      data = [...tempData, ...data.slice(data.length - numOfDone, data.length)];
+    } else if (req.body.sort == "Type") {
+      data.sort((a, b) =>
+        type[a.issueType] > type[b.issueType]
+          ? 1
+          : type[b.issueType] > type[a.issueType]
+          ? -1
+          : 0
+      );
+      data.sort((a, b) =>
+        type[a.issueType] == type[b.issueType] &&
+        status[a.issuestatus] > status[b.issuestatus]
+          ? 1
+          : type[a.issueType] == type[b.issueType] &&
+            status[b.issuestatus] > status[a.issuestatus]
+          ? -1
+          : 0
+      );
+      data.sort((a, b) =>
+        type[a.issueType] == type[b.issueType] &&
+        status[a.issuestatus] == status[b.issuestatus] &&
+        pri[a.priority] > pri[b.priority]
+          ? 1
+          : type[a.issueType] == type[b.issueType] &&
+            status[a.issuestatus] == status[b.issuestatus] &&
+            pri[b.priority] > pri[a.priority]
           ? -1
           : 0
       );
     } else if (req.body.sort == "Status") {
-      const cri = { "To do": 1, "In progress": 2, Testing: 3, Done: 4 };
       data.sort((a, b) =>
-        cri[a.issuestatus] >= cri[b.issuestatus]
+        status[a.issuestatus] > status[b.issuestatus]
           ? 1
-          : cri[b.issuestatus] >= cri[a.issuestatus]
+          : status[b.issuestatus] > status[a.issuestatus]
+          ? -1
+          : 0
+      );
+      data.sort((a, b) =>
+        status[a.issuestatus] == status[b.issuestatus] &&
+        pri[a.priority] > pri[b.priority]
+          ? 1
+          : status[a.issuestatus] == status[b.issuestatus] &&
+            pri[b.priority] > pri[a.priority]
           ? -1
           : 0
       );
