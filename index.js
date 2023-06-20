@@ -33,7 +33,7 @@ app.listen(8800, () => {
 // HANDLE SOCKET IO
 const io = new Server({
   cors: {
-    origin: "http://localhost:3000",
+    origin: "https://manus.website/",
   },
 });
 
@@ -120,4 +120,4 @@ io.on("connection", (socket) => {
   });
 });
 
-io.listen(5000);
+// io.listen(5000);
